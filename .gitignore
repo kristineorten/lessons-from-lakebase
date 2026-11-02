@@ -1,0 +1,11 @@
+# Local settings and secrets
+.env
+.databricks/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Drafts and local notes that stay out of the repo
+private/
