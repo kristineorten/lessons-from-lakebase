@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% from "_macros.html" import risk, source %}
+{% block title %}{{ account.name }} · Renewal review{% endblock %}
+{% block content %}
+<p class="back"><a href="{{ url_for('index') }}">Back to renewals</a></p>
+<section class="intro">
+  <h1>{{ account.name }}</h1>
+  <p>{{ account.segment }} customer worth NOK {{ account.value|spaced }} a year, renewing {{ account.renewal.strftime("%d %b %Y") }}.</p>
+</section>
+
+<section class="grid">
+  <div class="card wide">
+    <div class="card-head"><h2>Order history</h2>{{ source('Old and new ERP · combined in the lakehouse') }}</div>
+    <p class="sub">Monthly orders, last 12 months, in NOK</p>
+    <div class="chart" style="height: 260px"><canvas id="orders" role="img" aria-label="Line chart of monthly orders for {{ account.name }}"></canvas></div>
+    <script id="orders-data" type="application/json">{{ orders|tojson }}</script>
+    <details>
+      <summary>Show as table</summary>
+      <table class="plain">
+        <tr><th scope="col">Month</th><th scope="col" class="num">Orders (NOK)</th></tr>
+        {% for o in orders %}<tr><td>{{ o.label }}</td><td class="num">{{ o.value|spaced }}</td></tr>{% endfor %}
+      </table>
+    </details>
+  </div>
+
+  <div class="stack">
+    <div class="card">
+      <div class="card-head"><h2>Risk of leaving</h2>{{ source('Scored in the lakehouse') }}</div>
+      <div class="score"><span class="tile-value">{{ account.risk }}</span>{{ risk(account.level) }}</div>
+      <p>{{ account.reason }}</p>
+      <p class="muted">Updated {{ account.updated.strftime("%d %b at %H:%M:%S") }}</p>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Support</h2>{{ source('Support system') }}</div>
+      <div class="score"><span class="tile-value">{{ account.open_tickets }}</span><span>open tickets</span></div>
+      <p class="muted">{{ account.tickets_90 }} tickets in the last 90 days</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Decide</h2>{{ source('Written to Lakebase', written=true) }}</div>
+    <form method="post" action="{{ url_for('add_decision', account_id=account.id) }}" class="note-form">
+      <label for="decision">Decision</label>
+      <select id="decision" name="decision">
+        {% for d in decisions %}<option>{{ d }}</option>{% endfor %}
+      </select>
+      <label for="reason">Why?</label>
+      <textarea id="reason" name="reason" rows="3" maxlength="500" required></textarea>
+      <button type="submit">Save decision</button>
+    </form>
+  </div>
+
+  <div class="card wide">
+    <div class="card-head"><h2>Decision history</h2>{{ source('Written to Lakebase', written=true) }}</div>
+    {% if history %}
+    <ul class="notes">
+      {% for h in history %}
+      <li><p><strong>{{ h[0] }}</strong>. {{ h[1] }}</p><span class="muted">{{ h[2] }}, {{ h[3].strftime("%d %b at %H:%M") }}</span></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">No decision yet.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

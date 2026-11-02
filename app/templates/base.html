@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Renewal review{% endblock %}</title>
+<script src="{{ url_for('static', filename='theme.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="{{ url_for('index') }}">Renewal review</a>
+  <nav>
+    <a href="{{ url_for('index') }}">Renewals</a>
+    <a href="{{ url_for('data_api') }}">Data API</a>
+    <button id="theme-toggle" type="button" aria-label="Switch between light and dark mode">Dark mode</button>
+  </nav>
+</header>
+<main>
+{% block content %}{% endblock %}
+</main>
+<footer>Fictional demo. All companies, people and figures are invented.</footer>
+<script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

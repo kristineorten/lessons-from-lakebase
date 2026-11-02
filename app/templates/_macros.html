@@ -1,0 +1,7 @@
+{% macro risk(level) %}
+<span class="risk risk-{{ level }}"><span class="risk-mark" aria-hidden="true">{{ {'high': '▲', 'medium': '◆', 'low': '●'}[level] }}</span>{{ level|capitalize }}</span>
+{% endmacro %}
+
+{% macro source(text, written=false) %}
+<span class="source{{ ' source-write' if written }}">{{ text }}</span>
+{% endmacro %}

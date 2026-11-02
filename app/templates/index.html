@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% from "_macros.html" import risk, source %}
+{% block content %}
+<section class="intro">
+  <h1>Which customers do we renew, and on what terms?</h1>
+  <p>Ingrid is an account executive at a fictional wholesaler. Before a customer's yearly contract runs out, she looks at their history and decides what to offer. This small app is where she does that. Finance needs her decisions in the revenue forecast straight away.</p>
+</section>
+
+<section aria-labelledby="how">
+  <h2 id="how">Why this needs more than one database</h2>
+  <ol class="steps">
+    <li><strong>The history is in the lakehouse</strong><span>Last year the company moved to a new ERP, and older orders were not migrated. They exist only in the lakehouse, next to tickets from the support system.</span></li>
+    <li><strong>Lakebase serves it to the app</strong><span>Synced tables copy scores, orders and tickets to Postgres, so this page opens in milliseconds.</span></li>
+    <li><strong>Ingrid decides</strong><span>Her decisions go straight into an ordinary Postgres table in Lakebase.</span></li>
+    <li><strong>Finance sees it at once</strong><span>The forecast in Databricks reads her decisions live, with no pipeline in between.</span></li>
+  </ol>
+</section>
+
+<section class="tiles" aria-label="Key figures">
+  <div class="tile"><span class="tile-label">Customers to review</span><span class="tile-value">{{ to_review }}</span></div>
+  <div class="tile"><span class="tile-label">Of those, at risk</span><span class="tile-value">{{ open_at_risk }}</span></div>
+  <div class="tile"><span class="tile-label">Undecided value at risk</span><span class="tile-value">NOK {{ value_open|compact }}</span></div>
+  <div class="tile"><span class="tile-label">Decided today</span><span class="tile-value">{{ decided_today }}</span></div>
+</section>
+
+<section class="grid">
+  <div class="card">
+    <div class="card-head"><h2>Where the risk is</h2>{{ source('Scored in the lakehouse') }}</div>
+    <p class="sub">Annual value of undecided medium and high-risk customers, in NOK</p>
+    {% if segments %}
+    <div class="chart" style="height: {{ 64 + segments|length * 44 }}px"><canvas id="segments" role="img" aria-label="Bar chart of undecided value at risk by customer segment"></canvas></div>
+    <script id="segments-data" type="application/json">{{ segments|tojson }}</script>
+    <details>
+      <summary>Show as table</summary>
+      <table class="plain">
+        <tr><th scope="col">Segment</th><th scope="col" class="num">Value at risk (NOK)</th></tr>
+        {% for s in segments %}<tr><td>{{ s.label }}</td><td class="num">{{ s.value|spaced }}</td></tr>{% endfor %}
+      </table>
+    </details>
+    {% else %}
+    <p class="muted">Every customer at risk has a decision.</p>
+    {% endif %}
+  </div>
+
+  <div class="card wide">
+    <div class="card-head"><h2>Renewals to review</h2>{{ source('Scored in the lakehouse') }}</div>
+    <p class="sub">Soonest renewal first. Open a customer to review it and decide.</p>
+    <div class="scroll">
+    <table class="customers">
+      <tr><th scope="col">Customer</th><th scope="col">Renews</th><th scope="col">Risk</th><th scope="col" class="num">Annual value</th><th scope="col" class="num">Open tickets</th><th scope="col">Decision</th></tr>
+      {% for a in accounts %}
+      <tr>
+        <td><a href="{{ url_for('customer', account_id=a.id) }}">{{ a.name }}</a><span class="muted">{{ a.segment }}</span></td>
+        <td>{{ a.renewal.strftime("%d %b %Y") }}</td>
+        <td>{{ risk(a.level) }}</td>
+        <td class="num">{{ a.value|compact }}</td>
+        <td class="num">{{ a.open_tickets }}</td>
+        <td>{% if a.decision %}{{ a.decision }}{% else %}<span class="muted">To review</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

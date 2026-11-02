@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Data API · Renewal review{% endblock %}
+{% block content %}
+<section class="intro">
+  <h1>The same data, without an app in front of it</h1>
+  <p>The pages you just used run SQL against Postgres. Other systems often cannot do that, but almost anything can call a URL. A partner portal, for example, could ask which customers are high risk with the request below. Nobody wrote a backend for this: Lakebase builds the API from the tables.</p>
+</section>
+
+<section class="grid">
+  <div class="card">
+    <h2>Round trip</h2>
+    <div class="score"><span class="tile-value">{{ elapsed }} ms</span></div>
+    <p class="muted">Measured live from this app, on a warm connection and a small compute. Refresh to measure again.</p>
+  </div>
+
+  <div class="card wide">
+    <h2>The request</h2>
+    <p class="sub">A plain web address, with the filter in the URL. It is secured with the caller's Databricks identity.</p>
+    <pre>GET /lessons_from_lakebase/accounts_synced?{{ query }}</pre>
+    <h2>The response</h2>
+    <p class="sub">The high-risk customers, shown here as a table. The API returns them as JSON.</p>
+    {% if status != 200 %}
+    <p>The Data API returned status {{ status }}.</p>
+    {% else %}
+    <table class="plain">
+      <tr><th scope="col">account_name</th><th scope="col" class="num">risk_score</th><th scope="col">renewal_date</th></tr>
+      {% for r in rows %}<tr><td>{{ r.account_name }}</td><td class="num">{{ r.risk_score }}</td><td>{{ r.renewal_date }}</td></tr>{% endfor %}
+    </table>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
