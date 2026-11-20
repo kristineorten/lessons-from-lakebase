@@ -54,8 +54,10 @@ pool = ConnectionPool(
         f"sslmode={os.environ.get('PGSSLMODE', 'require')}"
     ),
     connection_class=OAuthConnection,
-    min_size=1,
+    # No connection is kept open when idle, so Lakebase can scale to zero while the app runs.
+    min_size=0,
     max_size=5,
+    max_idle=120,
     open=True,
 )
 
