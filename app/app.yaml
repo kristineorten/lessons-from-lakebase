@@ -1,5 +1,0 @@
-command: ['gunicorn', 'app:app', '--bind', '0.0.0.0:8000', '--workers', '1', '--threads', '4']
-
-env:
-  - name: ENDPOINT_NAME
-    value: 'projects/lessons-from-lakebase-demo/branches/production/endpoints/primary'

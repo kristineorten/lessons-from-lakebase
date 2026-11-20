@@ -6,9 +6,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from common import APP_NAME, CATALOG, ENV, SCHEMA, cli, postgres, sql, warehouse_id
+from common import APP_NAME, CATALOG, LAKEBASE_CATALOG, SCHEMA, cli, postgres, sql, warehouse_id
 
-LAKEBASE_CATALOG = ENV.get("LAKEBASE_CATALOG", "lessons_from_lakebase_pg")
 MARKER = "Automated check, safe to delete"
 ACCOUNT = 4
 

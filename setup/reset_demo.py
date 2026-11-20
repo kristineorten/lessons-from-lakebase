@@ -1,4 +1,4 @@
-"""Put the demo back to its starting point, before a rehearsal or a recording."""
+"""Put the demo back to its starting point, before or after a run-through."""
 import time
 
 from common import CATALOG, SCHEMA, cli, postgres, sql, warehouse_id

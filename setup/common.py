@@ -10,13 +10,6 @@ from pathlib import Path
 import psycopg
 
 ROOT = Path(__file__).resolve().parent.parent
-PROJECT_ID = "lessons-from-lakebase-demo"
-PROJECT = f"projects/{PROJECT_ID}"
-BRANCH = f"{PROJECT}/branches/production"
-ENDPOINT = f"{BRANCH}/endpoints/primary"
-DATABASE = "databricks_postgres"
-APP_NAME = "lessons-from-lakebase-app"
-SCHEMA = "lessons_from_lakebase"
 
 
 def load_env():
@@ -31,6 +24,14 @@ def load_env():
 
 ENV = load_env()
 CATALOG = ENV["CATALOG"]
+LAKEBASE_CATALOG = ENV.get("LAKEBASE_CATALOG") or "lessons_from_lakebase_pg"
+PROJECT_ID = ENV.get("PROJECT_ID") or "lessons-from-lakebase-demo"
+PROJECT = f"projects/{PROJECT_ID}"
+BRANCH = f"{PROJECT}/branches/production"
+ENDPOINT = f"{BRANCH}/endpoints/primary"
+DATABASE = "databricks_postgres"
+APP_NAME = "lessons-from-lakebase-app"
+SCHEMA = "lessons_from_lakebase"
 DATABRICKS = ENV.get("DATABRICKS_CLI") or shutil.which("databricks")
 
 

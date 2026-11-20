@@ -24,7 +24,7 @@ You need:
 - The [Databricks CLI](https://learn.microsoft.com/en-us/azure/databricks/dev-tools/cli/install), version 1.0 or later
 - Python 3.10 or later
 
-Running this costs money in a paid workspace, so see [Clean up](#clean-up). It has not been tested on Databricks Free Edition yet.
+Running this costs money in a paid workspace, so see [Clean up](#clean-up). It has been tested on Azure Databricks only, not on AWS, GCP or Databricks Free Edition. Lakebase is not available in every region: check [region availability](https://learn.microsoft.com/en-us/azure/databricks/oltp/projects/manage-projects#availability) first.
 
 ### Steps
 
@@ -37,7 +37,9 @@ python -m venv .venv
 .venv/bin/pip install -r setup/requirements.txt   # on Windows: .venv\Scripts\pip
 ```
 
-Create the Lakebase project. The settings below keep the compute small:
+Use the Python in `.venv` for all the scripts below.
+
+Create the Lakebase project. The settings below keep the compute small. The commands use the project id `lessons-from-lakebase-demo`. If you choose another one, set `PROJECT_ID` in `.env` and use your id in the commands too:
 
 ```bash
 databricks postgres create-project lessons-from-lakebase-demo --profile my-profile --json '{
@@ -85,7 +87,16 @@ python setup/04_enable_data_api.py
 python setup/05_deploy_app.py
 ```
 
-Use the Python in `.venv` for the scripts. To read Ingrid's notes from Databricks SQL, register the database in Unity Catalog. [docs/demo-script.md](docs/demo-script.md) walks through the whole demo.
+`05_deploy_app.py` writes `app/app.yaml` for your project before it uploads the app.
+
+Register the Lakebase database in Unity Catalog, so Databricks SQL can read Ingrid's decisions live. Then check the whole demo from end to end:
+
+```bash
+python setup/06_register_catalog.py
+python setup/check_demo.py
+```
+
+[docs/demo-script.md](docs/demo-script.md) walks through the demo. `python setup/reset_demo.py` puts it back to its starting point.
 
 ## Clean up
 
@@ -95,7 +106,7 @@ Stop the app when you are done, and turn off anything that runs on a schedule:
 databricks apps stop lessons-from-lakebase-app --profile my-profile
 ```
 
-The Lakebase compute suspends by itself after five minutes. To remove everything, delete the app, the synced tables, the Unity Catalog catalog and schema, and then the Lakebase project.
+The Lakebase compute suspends by itself after five minutes without queries, even while the app runs, because the app keeps no idle connections open. The app itself is billed for as long as it runs. To remove everything, delete the app, the synced tables, the Lakebase catalog, the Unity Catalog schema, and then the Lakebase project.
 
 ## What is where
 
@@ -104,7 +115,6 @@ The Lakebase compute suspends by itself after five minutes. To remove everything
 | `app/` | The Databricks App: Flask, Postgres and Chart.js |
 | `setup/` | Numbered scripts that build the demo |
 | `docs/demo-script.md` | The steps of the live demo |
-| `docs/recording-guide.md` | How to record a backup video |
 
 ## Notes
 
@@ -112,3 +122,4 @@ The Lakebase compute suspends by itself after five minutes. To remove everything
 - Chart.js 4.4.9 is included in `app/static/vendor` under its MIT licence.
 - This is a demo, not a production app. Everyone with access to the app acts as Ingrid, because it does not record who is signed in.
 - This is a personal project. It is not an official Databricks product.
+- The code is under the [MIT licence](LICENSE).
